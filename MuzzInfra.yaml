@@ -1,0 +1,49 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >-
+  Creates a VPC with a static IPv4 CIDR block of 10.100.0.0/16.
+
+Parameters:
+  VpcCidrBlock:
+    Type: String
+    Default: 10.100.0.0/16
+    Description: The IPv4 CIDR block for the VPC.
+    AllowedPattern: '^(\d{1,3}\.){3}\d{1,3}/\d{1,2}$'
+    ConstraintDescription: Must be a valid IPv4 CIDR block (e.g. 10.100.0.0/16).
+
+  VpcName:
+    Type: String
+    Default: MuzzInfra-VPC
+    Description: Name tag applied to the VPC.
+
+Resources:
+  Vpc:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock:
+        Ref: VpcCidrBlock
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      InstanceTenancy: default
+      Tags:
+        - Key: Name
+          Value:
+            Ref: VpcName
+
+Outputs:
+  VpcId:
+    Description: The ID of the created VPC.
+    Value:
+      Ref: Vpc
+    Export:
+      Name:
+        Fn::Sub: '${AWS::StackName}-VpcId'
+
+  VpcCidr:
+    Description: The IPv4 CIDR block assigned to the VPC.
+    Value:
+      Fn::GetAtt:
+        - Vpc
+        - CidrBlock
+    Export:
+      Name:
+        Fn::Sub: '${AWS::StackName}-VpcCidr'
